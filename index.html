@@ -3,20 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hanzi Dice Roll Game</title>
+    <title>Hanzi Roulette Spinner</title>
     <style>
         :root {
-            --primary-color: #E74C3C; /* Red theme for Chinese/Dice feel */
-            --primary-hover: #C0392B;
-            --background-color: #F4F6F7;
-            --card-color: #FFFFFF;
-            --text-color: #2C3E50;
+            --roulette-red: #C0392B;
+            --roulette-gold: #F1C40F;
+            --background-dark: #1A252F;
+            --card-light: #FFFFFF;
         }
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--background-color);
-            color: var(--text-color);
+            background-color: #2C3E50;
+            color: #333;
             margin: 0;
             padding: 20px;
             display: flex;
@@ -26,14 +25,15 @@
         }
 
         .container {
-            background-color: var(--card-color);
+            background-color: var(--card-light);
             padding: 35px;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border-radius: 24px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
             width: 100%;
             max-width: 550px;
             text-align: center;
             box-sizing: border-box;
+            position: relative;
         }
 
         h1 {
@@ -46,7 +46,6 @@
             font-size: 15px;
             color: #7F8C8D;
             margin-bottom: 25px;
-            line-height: 1.5;
         }
 
         textarea {
@@ -54,107 +53,147 @@
             height: 130px;
             padding: 15px;
             border: 2px solid #BDC3C7;
-            border-radius: 10px;
+            border-radius: 12px;
             font-size: 16px;
             resize: none;
             box-sizing: border-box;
             margin-bottom: 25px;
-            transition: border-color 0.3s;
         }
 
         textarea:focus {
-            border-color: var(--primary-color);
+            border-color: var(--roulette-red);
             outline: none;
         }
 
-        button {
-            background-color: var(--primary-color);
+        /* --- ROULETTE WINDOW DESIGN --- */
+        .roulette-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 320px;
+            height: 140px;
+            margin: 30px auto;
+            background-color: var(--background-dark);
+            border: 8px solid var(--roulette-gold);
+            border-radius: 16px;
+            overflow: hidden; /* Sembunyikan kata di luar kotak jendela */
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.8), 0 8px 20px rgba(0,0,0,0.2);
+        }
+
+        /* Garis Penunjuk Tengah (Target Pointer) */
+        .roulette-wrapper::before, .roulette-wrapper::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--roulette-gold);
+            z-index: 10;
+        }
+        .roulette-wrapper::before { top: 20px; }
+        .roulette-wrapper::after { bottom: 20px; }
+
+        /* Segitiga Penunjuk Kiri-Kanan */
+        .pointer-left, .pointer-right {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 0;
+            height: 0;
+            border-top: 15px solid transparent;
+            border-bottom: 15px solid transparent;
+            z-index: 11;
+        }
+        .pointer-left {
+            left: 5px;
+            border-left: 20px solid var(--roulette-gold);
+        }
+        .pointer-right {
+            right: 5px;
+            border-right: 20px solid var(--roulette-gold);
+        }
+
+        /* Kontainer Gulungan Kata */
+        .roulette-strip {
+            position: absolute;
+            width: 100%;
+            top: 0;
+            left: 0;
+            transition: transform 0s ease-out; /* Diatur dinamis via JS */
+            will-change: transform;
+        }
+
+        /* Desain Setiap Item Kata */
+        .roulette-item {
+            height: 140px;
+            line-height: 140px;
+            font-size: 65px;
+            font-weight: bold;
+            color: #FFFFFF;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            box-sizing: border-box;
+            background: #2C3E50;
+            border-bottom: 1px solid #34495E;
+        }
+
+        /* --- CONTROL INTERFACE --- */
+        .lever-btn {
+            background: linear-gradient(135deg, #E74C3C, #C0392B);
             color: white;
             border: none;
-            padding: 14px 28px;
-            font-size: 16px;
+            padding: 16px 32px;
+            font-size: 18px;
             font-weight: bold;
-            border-radius: 10px;
+            border-radius: 50px;
             cursor: pointer;
+            box-shadow: 0 6px 15px rgba(192, 57, 43, 0.4);
             transition: all 0.2s;
             width: 100%;
         }
 
-        button:hover {
-            background-color: var(--primary-hover);
+        .lever-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(192, 57, 43, 0.6);
         }
 
-        button:active {
-            transform: scale(0.98);
+        .lever-btn:disabled {
+            background: #95A5A6;
+            box-shadow: none;
+            cursor: not-allowed;
+            transform: none;
         }
 
-        .hidden {
-            display: none !important;
-        }
-
-        /* --- DICE DESIGN --- */
-        .dice-container {
-            margin: 40px auto;
-            width: 160px;
-            height: 160px;
-            perspective: 600px;
-        }
-
-        .dice {
-            width: 100%;
-            height: 100%;
-            background: #FFFFFF;
-            border: 4px solid var(--primary-color);
-            border-radius: 24px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 75px;
-            font-weight: bold;
-            color: #2C3E50;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-            transition: transform 0.1s ease;
-            user-select: none;
-        }
-
-        /* Rolling Animation Classes */
-        .rolling {
-            animation: shake 0.5s infinite linear;
-            border-color: #F1C40F !important; /* Gold border when rolling */
-            background-color: #FCF3CF;
-        }
-
-        @keyframes shake {
-            0% { transform: translate(2px, 1px) rotate(0deg); }
-            10% { transform: translate(-1px, -2px) rotate(-2deg); }
-            20% { transform: translate(-3px, 0px) rotate(2deg); }
-            30% { transform: translate(0px, 2px) rotate(0deg); }
-            40% { transform: translate(1px, -1px) rotate(2deg); }
-            50% { transform: translate(-1px, 2px) rotate(-1deg); }
-            60% { transform: translate(-3px, 1px) rotate(0deg); }
-            70% { transform: translate(2px, 1px) rotate(-2deg); }
-            80% { transform: translate(-1px, -1px) rotate(2deg); }
-            90% { transform: translate(2px, 2px) rotate(0deg); }
-            100% { transform: translate(1px, -2px) rotate(-1deg); }
-        }
-
-        .instruction-box {
+        .status-alert {
             background-color: #EAEDED;
-            padding: 12px;
-            border-radius: 8px;
-            font-size: 14px;
+            padding: 14px;
+            border-radius: 10px;
+            font-size: 15px;
             font-weight: bold;
             color: #566573;
-            margin-bottom: 25px;
+            margin: 25px 0;
+            transition: all 0.3s;
         }
+
+        .winner-flash {
+            animation: flashLight 0.4s infinite alternate;
+        }
+
+        @keyframes flashLight {
+            from { border-color: var(--roulette-gold); background-color: #FFF2CC; }
+            to { border-color: #E67E22; background-color: #D4EFDF; }
+        }
+
+        .hidden { display: none !important; }
 
         .btn-secondary {
             background-color: #BDC3C7;
             color: #2C3E50;
-            margin-top: 15px;
-        }
-        .btn-secondary:hover {
-            background-color: #95A5A6;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            width: 100%;
+            margin-top: 10px;
         }
     </style>
 </head>
@@ -162,96 +201,125 @@
 
     <!-- SETUP SCREEN -->
     <div id="setup-screen" class="container">
-        <h1>🎲 Hanzi Dice Roll Setup</h1>
-        <p>Input your vocabulary below. Separate individual Hanzi characters or words using commas, spaces, or new lines.</p>
-        <textarea id="hanzi-input" placeholder="e.g., 老师, 学生, 学校, 谢谢, 你好"></textarea>
-        <button onclick="setupGame()">Generate Dice</button>
+        <h1>🎰 Hanzi Roulette Setup</h1>
+        <p>Input your vocabulary below. Separate them using commas, spaces, or new lines.</p>
+        <textarea id="hanzi-input" placeholder="e.g., 老师, 学生, 学校, 谢谢, 你好, 苹果, 飞机, 咖啡"></textarea>
+        <button class="lever-btn" onclick="initRoulette()">Load into Roulette</button>
     </div>
 
     <!-- GAMEPLAY SCREEN -->
     <div id="game-screen" class="container hidden">
-        <h1>Roll the Dice!</h1>
-        <p>Press the button to roll. When it stops, raise your hand as fast as you can to answer!</p>
+        <h1>Hanzi Roulette Wheel</h1>
+        <p>Pull the lever to spin the wheel. Be the fastest to raise your hand!</p>
         
-        <!-- The Dice -->
-        <div class="dice-container">
-            <div id="dice-face" class="dice">?</div>
+        <!-- Roulette Window -->
+        <div id="roulette-box" class="roulette-wrapper">
+            <div class="pointer-left"></div>
+            <div class="pointer-right"></div>
+            <div id="strip" class="roulette-strip">
+                <!-- Items will be generated dynamically by JavaScript -->
+            </div>
         </div>
         
-        <div id="status-instruction" class="instruction-box">
-            Ready to Roll!
+        <!-- Status Notification Box -->
+        <div id="game-status" class="status-alert">
+            Place your bets and pull the lever!
         </div>
 
-        <button id="roll-button" onclick="rollDice()">🎲 Roll Dice</button>
+        <button id="spin-button" class="lever-btn" onclick="spinRoulette()">🕹️ Pull Lever (Spin)</button>
         <button class="btn-secondary" onclick="backToSetup()">⚙️ Edit Words</button>
     </div>
 
     <script>
-        let wordsPool = [];
-        let isRolling = false;
+        let originalWords = [];
+        let itemHeight = 140; // Harus sama dengan height .roulette-item di CSS
+        let isSpinning = false;
 
-        function setupGame() {
+        function initRoulette() {
             const rawInput = document.getElementById('hanzi-input').value;
-            
-            // Clean input and split by comma, space, or newline
-            wordsPool = rawInput.split(/[\s,，\n]+/).filter(word => word.trim() !== "");
+            originalWords = rawInput.split(/[\s,，\n]+/).filter(word => word.trim() !== "");
 
-            if (wordsPool.length === 0) {
+            if (originalWords.length === 0) {
                 alert("Please enter at least one Hanzi character or word first!");
                 return;
             }
 
-            // Switch Screen
+            // Ganti layar ke gameplay
             document.getElementById('setup-screen').classList.add('hidden');
             document.getElementById('game-screen').classList.remove('hidden');
-            
-            // Reset Dice Face
-            document.getElementById('dice-face').innerText = "🎲";
-            document.getElementById('status-instruction').innerText = "Click 'Roll Dice' to start!";
-            document.getElementById('status-instruction').style.backgroundColor = "#EAEDED";
-            document.getElementById('status-instruction').style.color = "#566573";
+
+            resetRouletteVisuals();
         }
 
-        function rollDice() {
-            if (isRolling) return; // Prevent double clicking while rolling
+        function resetRouletteVisuals() {
+            const strip = document.getElementById('strip');
+            strip.style.transition = 'none';
+            strip.style.transform = 'translateY(0px)';
             
-            isRolling = true;
-            const diceFace = document.getElementById('dice-face');
-            const rollBtn = document.getElementById('roll-button');
-            const instruction = document.getElementById('status-instruction');
+            // Isi strip dengan kata pertama saja sebagai default awal
+            strip.innerHTML = `<div class="roulette-item">${originalWords[0]}</div>`;
             
-            rollBtn.disabled = true;
-            instruction.innerText = "Rolling... Get ready!";
-            instruction.style.backgroundColor = "#FCF3CF";
-            instruction.style.color = "#B7950B";
-            diceFace.classList.add('rolling');
+            const status = document.getElementById('game-status');
+            status.innerText = "Ready to Spin!";
+            status.className = "status-alert";
+            document.getElementById('roulette-box').classList.remove('winner-flash');
+        }
 
-            // Simulate the dice shuffling effect by rapidly changing faces
-            let shuffleCount = 0;
-            const shuffleInterval = setInterval(() => {
-                const tempIndex = Math.floor(Math.random() * wordsPool.length);
-                diceFace.innerText = wordsPool[tempIndex];
-                shuffleCount++;
+        function spinRoulette() {
+            if (isSpinning) return;
+            isSpinning = true;
+
+            const strip = document.getElementById('strip');
+            const spinBtn = document.getElementById('spin-button');
+            const status = document.getElementById('game-status');
+            const rouletteBox = document.getElementById('roulette-box');
+
+            spinBtn.disabled = true;
+            rouletteBox.classList.remove('winner-flash');
+            status.innerText = "🎰 Spinning... Watch closely!";
+            status.style.backgroundColor = "#FCF3CF";
+            status.style.color = "#B7950B";
+
+            // 1. Buat urutan barisan acak yang panjaaaang untuk efek gulungan roulette
+            let spinList = [];
+            const targetedSpins = 40; // Jumlah lompatan kata sebelum berhenti (bisa ditambah agar makin lama)
+            
+            for (let i = 0; i < targetedSpins; i++) {
+                const randomWord = originalWords[Math.floor(Math.random() * originalWords.length)];
+                spinList.push(randomWord);
+            }
+            
+            // Kata terakhir di dalam array adalah kata pemenang target utama kita
+            const winningWord = spinList[spinList.length - 1];
+
+            // 2. Render seluruh list ke dalam DOM secara vertikal
+            strip.innerHTML = spinList.map(word => `<div class="roulette-item">${word}</div>`).join('');
+
+            // 3. Reset posisi strip ke paling atas secara instan
+            strip.style.transition = 'none';
+            strip.style.transform = 'translateY(0px)';
+
+            // 4. Jalankan animasi gulungan ke bawah (menggunakan setTimeout agar transisi CSS terbaca browser)
+            setTimeout(() => {
+                // Jarak geser ke bawah: (total item - 1) dikali tinggi satu kotak kata
+                const travelDistance = (targetedSpins - 1) * itemHeight;
                 
-                // Stop rolling after 15 shuffles (approx 1.5 seconds)
-                if (shuffleCount > 15) {
-                    clearInterval(shuffleInterval);
-                    
-                    // Pick the final truly random word
-                    const finalIndex = Math.floor(Math.random() * wordsPool.length);
-                    diceFace.innerText = wordsPool[finalIndex];
-                    
-                    // Stop animation
-                    diceFace.classList.remove('rolling');
-                    isRolling = false;
-                    rollBtn.disabled = false;
-                    
-                    // Prompt students to raise hands
-                    instruction.innerText = "✋ RAISE YOUR HAND NOW!";
-                    instruction.style.backgroundColor = "#D4EFDF";
-                    instruction.style.color = "#196F3D";
-                }
-            }, 100); // changes every 100ms
+                // Gunakan cubic-bezier agar gerakan melesat cepat di awal lalu melambat halus di akhir (efek gesekan)
+                strip.style.transition = 'transform 3.5s cubic-bezier(0.15, 0.85, 0.35, 1)';
+                strip.style.transform = `translateY(-${travelDistance}px)`;
+            }, 50);
+
+            // 5. Ketika roda roulette berhenti berputar (setelah 3.5 detik)
+            setTimeout(() => {
+                isSpinning = false;
+                spinBtn.disabled = false;
+
+                // Berikan efek visual kemenangan (lampu kilat berkedip)
+                rouletteBox.classList.add('winner-flash');
+                status.innerText = "✋ STOP! RAISE YOUR HAND NOW!";
+                status.style.backgroundColor = "#D4EFDF";
+                status.style.color = "#196F3D";
+            }, 3550); 
         }
 
         function backToSetup() {
