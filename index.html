@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Tebak Hanzi Random</title>
+    <style>
+        :root {
+            --primary-color: #4A90E2;
+            --secondary-color: #2ECC71;
+            --background-color: #F5F7FA;
+            --card-color: #FFFFFF;
+            --text-color: #333333;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background-color: var(--card-color);
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #2C3E50;
+        }
+
+        p {
+            font-size: 14px;
+            color: #7F8C8D;
+            margin-bottom: 20px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 120px;
+            padding: 12px;
+            border: 2px solid #BDC3C7;
+            border-radius: 8px;
+            font-size: 16px;
+            resize: none;
+            box-sizing: border-box;
+            margin-bottom: 20px;
+            transition: border-color 0.3s;
+        }
+
+        textarea:focus {
+            border-color: var(--primary-color);
+            outline: none;
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.1s, background-color 0.3s;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: #357ABD;
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        /* Tampilan Game */
+        .hidden {
+            display: none !important;
+        }
+
+        .flashcard {
+            font-size: 80px;
+            font-weight: bold;
+            margin: 40px 0;
+            min-height: 120px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #2C3E50;
+            background: #F9FAFC;
+            border-radius: 12px;
+            border: 1px solid #E2E8F0;
+        }
+
+        .score-board {
+            font-size: 14px;
+            font-weight: bold;
+            color: #95A5A6;
+            margin-bottom: 10px;
+        }
+
+        .game-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .btn-success { background-color: var(--secondary-color); }
+        .btn-success:hover { background-color: #27AE60; }
+        
+        .btn-wrong { background-color: #E74C3C; }
+        .btn-wrong:hover { background-color: #C0392B; }
+
+        .btn-secondary { background-color: #95A5A6; }
+        .btn-secondary:hover { background-color: #7F8C8D; }
+    </style>
+</head>
+<body>
+
+    <div id="setup-screen" class="container">
+        <h1>Input Kata Hanzi</h1>
+        <p>Masukkan kata-kata Hanzi di bawah ini. Anda bisa memisahkannya dengan koma (,), spasi, atau baris baru.</p>
+        <textarea id="hanzi-input" placeholder="Contoh: 老师, 学生, 学校, 谢谢, 你好"></textarea>
+        <button onclick="startGame()">Mulai Game</button>
+    </div>
+
+    <div id="game-screen" class="container hidden">
+        <div class="score-board">Sisa Kata: <span id="word-count">0</span></div>
+        
+        <div class="flashcard" id="hanzi-display">一一</div>
+        
+        <p>Instruksi: Sebutkan cara baca (Pinyin) dan artinya dengan lantang!</p>
+
+        <div class="game-controls">
+            <button class="btn-wrong" onclick="nextWord(false)">Salah / Lewati</button>
+            <button class="btn-success" onclick="nextWord(true)">Benar!</button>
+        </div>
+        
+        <hr style="border: 0; border-top: 1px solid #E2E8F0; margin: 20px 0;">
+        <button class="btn-secondary" onclick="resetGame()">Kembali ke Input</button>
+    </div>
+
+    <script>
+        let wordList = [];
+        let currentWordIndex = 0;
+
+        function startGame() {
+            const rawInput = document.getElementById('hanzi-input').value;
+            
+            // Memisahkan input berdasarkan koma, spasi, atau enter, lalu membersihkan spasi kosong
+            wordList = rawInput.split(/[\s,，\n]+/).filter(word => word.trim() !== "");
+
+            if (wordList.length === 0) {
+                alert("Silakan masukkan minimal satu kata Hanzi terlebih dahulu!");
+                return;
+            }
+
+            // Mengacak urutan kata (Fisher-Yates Shuffle)
+            shuffleArray(wordList);
+
+            // Pindah halaman
+            document.getElementById('setup-screen').classList.add('hidden');
+            document.getElementById('game-screen').classList.remove('hidden');
+
+            // Tampilkan kata pertama
+            showWord();
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        function showWord() {
+            if (wordList.length === 0) {
+                document.getElementById('hanzi-display').style.fontSize = "32px";
+                document.getElementById('hanzi-display').innerText = "🎉 Semua kata selesai!";
+                document.querySelector('.game-controls').classList.add('hidden');
+                document.getElementById('word-count').innerText = "0";
+                return;
+            }
+
+            document.getElementById('word-count').innerText = wordList.length;
+            document.getElementById('hanzi-display').style.fontSize = "80px";
+            // Ambil kata pertama dari list yang sudah diacak
+            document.getElementById('hanzi-display').innerText = wordList[0];
+        }
+
+        function nextWord(isCorrect) {
+            // Hapus kata yang sedang tampil dari daftar jika dijawab benar
+            // Jika salah/lewati, kata tersebut akan dihapus juga agar game terus berjalan (atau bisa disesuaikan)
+            wordList.shift(); 
+            
+            showWord();
+        }
+
+        function resetGame() {
+            // Mengembalikan ke tampilan awal
+            document.getElementById('setup-screen').classList.remove('hidden');
+            document.getElementById('game-screen').classList.add('hidden');
+            document.querySelector('.game-controls').classList.remove('hidden');
+            document.getElementById('hanzi-input').value = "";
+        }
+    </script>
+</body>
+</html>
