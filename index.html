@@ -1,16 +1,16 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Game Tebak Hanzi Random</title>
+    <title>Hanzi Dice Roll Game</title>
     <style>
         :root {
-            --primary-color: #4A90E2;
-            --secondary-color: #2ECC71;
-            --background-color: #F5F7FA;
+            --primary-color: #E74C3C; /* Red theme for Chinese/Dice feel */
+            --primary-hover: #C0392B;
+            --background-color: #F4F6F7;
             --card-color: #FFFFFF;
-            --text-color: #333333;
+            --text-color: #2C3E50;
         }
 
         body {
@@ -27,37 +27,38 @@
 
         .container {
             background-color: var(--card-color);
-            padding: 30px;
-            border-radius: 16px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+            padding: 35px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
             width: 100%;
-            max-width: 500px;
+            max-width: 550px;
             text-align: center;
             box-sizing: border-box;
         }
 
         h1 {
-            font-size: 24px;
-            margin-bottom: 20px;
+            font-size: 26px;
+            margin-bottom: 10px;
             color: #2C3E50;
         }
 
         p {
-            font-size: 14px;
+            font-size: 15px;
             color: #7F8C8D;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
+            line-height: 1.5;
         }
 
         textarea {
             width: 100%;
-            height: 120px;
-            padding: 12px;
+            height: 130px;
+            padding: 15px;
             border: 2px solid #BDC3C7;
-            border-radius: 8px;
+            border-radius: 10px;
             font-size: 16px;
             resize: none;
             box-sizing: border-box;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
             transition: border-color 0.3s;
         }
 
@@ -70,153 +71,192 @@
             background-color: var(--primary-color);
             color: white;
             border: none;
-            padding: 12px 24px;
+            padding: 14px 28px;
             font-size: 16px;
             font-weight: bold;
-            border-radius: 8px;
+            border-radius: 10px;
             cursor: pointer;
-            transition: transform 0.1s, background-color 0.3s;
+            transition: all 0.2s;
             width: 100%;
         }
 
         button:hover {
-            background-color: #357ABD;
+            background-color: var(--primary-hover);
         }
 
         button:active {
             transform: scale(0.98);
         }
 
-        /* Tampilan Game */
         .hidden {
             display: none !important;
         }
 
-        .flashcard {
-            font-size: 80px;
-            font-weight: bold;
-            margin: 40px 0;
-            min-height: 120px;
+        /* --- DICE DESIGN --- */
+        .dice-container {
+            margin: 40px auto;
+            width: 160px;
+            height: 160px;
+            perspective: 600px;
+        }
+
+        .dice {
+            width: 100%;
+            height: 100%;
+            background: #FFFFFF;
+            border: 4px solid var(--primary-color);
+            border-radius: 24px;
             display: flex;
             justify-content: center;
             align-items: center;
+            font-size: 75px;
+            font-weight: bold;
             color: #2C3E50;
-            background: #F9FAFC;
-            border-radius: 12px;
-            border: 1px solid #E2E8F0;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            transition: transform 0.1s ease;
+            user-select: none;
         }
 
-        .score-board {
+        /* Rolling Animation Classes */
+        .rolling {
+            animation: shake 0.5s infinite linear;
+            border-color: #F1C40F !important; /* Gold border when rolling */
+            background-color: #FCF3CF;
+        }
+
+        @keyframes shake {
+            0% { transform: translate(2px, 1px) rotate(0deg); }
+            10% { transform: translate(-1px, -2px) rotate(-2deg); }
+            20% { transform: translate(-3px, 0px) rotate(2deg); }
+            30% { transform: translate(0px, 2px) rotate(0deg); }
+            40% { transform: translate(1px, -1px) rotate(2deg); }
+            50% { transform: translate(-1px, 2px) rotate(-1deg); }
+            60% { transform: translate(-3px, 1px) rotate(0deg); }
+            70% { transform: translate(2px, 1px) rotate(-2deg); }
+            80% { transform: translate(-1px, -1px) rotate(2deg); }
+            90% { transform: translate(2px, 2px) rotate(0deg); }
+            100% { transform: translate(1px, -2px) rotate(-1deg); }
+        }
+
+        .instruction-box {
+            background-color: #EAEDED;
+            padding: 12px;
+            border-radius: 8px;
             font-size: 14px;
             font-weight: bold;
-            color: #95A5A6;
-            margin-bottom: 10px;
+            color: #566573;
+            margin-bottom: 25px;
         }
 
-        .game-controls {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-top: 20px;
+        .btn-secondary {
+            background-color: #BDC3C7;
+            color: #2C3E50;
+            margin-top: 15px;
         }
-
-        .btn-success { background-color: var(--secondary-color); }
-        .btn-success:hover { background-color: #27AE60; }
-        
-        .btn-wrong { background-color: #E74C3C; }
-        .btn-wrong:hover { background-color: #C0392B; }
-
-        .btn-secondary { background-color: #95A5A6; }
-        .btn-secondary:hover { background-color: #7F8C8D; }
+        .btn-secondary:hover {
+            background-color: #95A5A6;
+        }
     </style>
 </head>
 <body>
 
+    <!-- SETUP SCREEN -->
     <div id="setup-screen" class="container">
-        <h1>Input Kata Hanzi</h1>
-        <p>Masukkan kata-kata Hanzi di bawah ini. Anda bisa memisahkannya dengan koma (,), spasi, atau baris baru.</p>
-        <textarea id="hanzi-input" placeholder="Contoh: 老师, 学生, 学校, 谢谢, 你好"></textarea>
-        <button onclick="startGame()">Mulai Game</button>
+        <h1>🎲 Hanzi Dice Roll Setup</h1>
+        <p>Input your vocabulary below. Separate individual Hanzi characters or words using commas, spaces, or new lines.</p>
+        <textarea id="hanzi-input" placeholder="e.g., 老师, 学生, 学校, 谢谢, 你好"></textarea>
+        <button onclick="setupGame()">Generate Dice</button>
     </div>
 
+    <!-- GAMEPLAY SCREEN -->
     <div id="game-screen" class="container hidden">
-        <div class="score-board">Sisa Kata: <span id="word-count">0</span></div>
+        <h1>Roll the Dice!</h1>
+        <p>Press the button to roll. When it stops, raise your hand as fast as you can to answer!</p>
         
-        <div class="flashcard" id="hanzi-display">一一</div>
-        
-        <p>Instruksi: Sebutkan cara baca (Pinyin) dan artinya dengan lantang!</p>
-
-        <div class="game-controls">
-            <button class="btn-wrong" onclick="nextWord(false)">Salah / Lewati</button>
-            <button class="btn-success" onclick="nextWord(true)">Benar!</button>
+        <!-- The Dice -->
+        <div class="dice-container">
+            <div id="dice-face" class="dice">?</div>
         </div>
         
-        <hr style="border: 0; border-top: 1px solid #E2E8F0; margin: 20px 0;">
-        <button class="btn-secondary" onclick="resetGame()">Kembali ke Input</button>
+        <div id="status-instruction" class="instruction-box">
+            Ready to Roll!
+        </div>
+
+        <button id="roll-button" onclick="rollDice()">🎲 Roll Dice</button>
+        <button class="btn-secondary" onclick="backToSetup()">⚙️ Edit Words</button>
     </div>
 
     <script>
-        let wordList = [];
-        let currentWordIndex = 0;
+        let wordsPool = [];
+        let isRolling = false;
 
-        function startGame() {
+        function setupGame() {
             const rawInput = document.getElementById('hanzi-input').value;
             
-            // Memisahkan input berdasarkan koma, spasi, atau enter, lalu membersihkan spasi kosong
-            wordList = rawInput.split(/[\s,，\n]+/).filter(word => word.trim() !== "");
+            // Clean input and split by comma, space, or newline
+            wordsPool = rawInput.split(/[\s,，\n]+/).filter(word => word.trim() !== "");
 
-            if (wordList.length === 0) {
-                alert("Silakan masukkan minimal satu kata Hanzi terlebih dahulu!");
+            if (wordsPool.length === 0) {
+                alert("Please enter at least one Hanzi character or word first!");
                 return;
             }
 
-            // Mengacak urutan kata (Fisher-Yates Shuffle)
-            shuffleArray(wordList);
-
-            // Pindah halaman
+            // Switch Screen
             document.getElementById('setup-screen').classList.add('hidden');
             document.getElementById('game-screen').classList.remove('hidden');
-
-            // Tampilkan kata pertama
-            showWord();
-        }
-
-        function shuffleArray(array) {
-            for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
-            }
-        }
-
-        function showWord() {
-            if (wordList.length === 0) {
-                document.getElementById('hanzi-display').style.fontSize = "32px";
-                document.getElementById('hanzi-display').innerText = "🎉 Semua kata selesai!";
-                document.querySelector('.game-controls').classList.add('hidden');
-                document.getElementById('word-count').innerText = "0";
-                return;
-            }
-
-            document.getElementById('word-count').innerText = wordList.length;
-            document.getElementById('hanzi-display').style.fontSize = "80px";
-            // Ambil kata pertama dari list yang sudah diacak
-            document.getElementById('hanzi-display').innerText = wordList[0];
-        }
-
-        function nextWord(isCorrect) {
-            // Hapus kata yang sedang tampil dari daftar jika dijawab benar
-            // Jika salah/lewati, kata tersebut akan dihapus juga agar game terus berjalan (atau bisa disesuaikan)
-            wordList.shift(); 
             
-            showWord();
+            // Reset Dice Face
+            document.getElementById('dice-face').innerText = "🎲";
+            document.getElementById('status-instruction').innerText = "Click 'Roll Dice' to start!";
+            document.getElementById('status-instruction').style.backgroundColor = "#EAEDED";
+            document.getElementById('status-instruction').style.color = "#566573";
         }
 
-        function resetGame() {
-            // Mengembalikan ke tampilan awal
+        function rollDice() {
+            if (isRolling) return; // Prevent double clicking while rolling
+            
+            isRolling = true;
+            const diceFace = document.getElementById('dice-face');
+            const rollBtn = document.getElementById('roll-button');
+            const instruction = document.getElementById('status-instruction');
+            
+            rollBtn.disabled = true;
+            instruction.innerText = "Rolling... Get ready!";
+            instruction.style.backgroundColor = "#FCF3CF";
+            instruction.style.color = "#B7950B";
+            diceFace.classList.add('rolling');
+
+            // Simulate the dice shuffling effect by rapidly changing faces
+            let shuffleCount = 0;
+            const shuffleInterval = setInterval(() => {
+                const tempIndex = Math.floor(Math.random() * wordsPool.length);
+                diceFace.innerText = wordsPool[tempIndex];
+                shuffleCount++;
+                
+                // Stop rolling after 15 shuffles (approx 1.5 seconds)
+                if (shuffleCount > 15) {
+                    clearInterval(shuffleInterval);
+                    
+                    // Pick the final truly random word
+                    const finalIndex = Math.floor(Math.random() * wordsPool.length);
+                    diceFace.innerText = wordsPool[finalIndex];
+                    
+                    // Stop animation
+                    diceFace.classList.remove('rolling');
+                    isRolling = false;
+                    rollBtn.disabled = false;
+                    
+                    // Prompt students to raise hands
+                    instruction.innerText = "✋ RAISE YOUR HAND NOW!";
+                    instruction.style.backgroundColor = "#D4EFDF";
+                    instruction.style.color = "#196F3D";
+                }
+            }, 100); // changes every 100ms
+        }
+
+        function backToSetup() {
             document.getElementById('setup-screen').classList.remove('hidden');
             document.getElementById('game-screen').classList.add('hidden');
-            document.querySelector('.game-controls').classList.remove('hidden');
-            document.getElementById('hanzi-input').value = "";
         }
     </script>
 </body>
