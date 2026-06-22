@@ -1,331 +1,1010 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-Hant">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hanzi Roulette Spinner</title>
-    <style>
-        :root {
-            --roulette-red: #C0392B;
-            --roulette-gold: #F1C40F;
-            --background-dark: #1A252F;
-            --card-light: #FFFFFF;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>學華語向前走・第1-3課闖關練習</title>
+<style>
+  :root{
+    --cream:#FAF6EC;
+    --cream-deep:#F1E9D8;
+    --ink:#2B4570;
+    --ink-deep:#1B2E4A;
+    --coral:#E8634A;
+    --coral-deep:#C94A33;
+    --mint:#6FAE96;
+    --mint-deep:#4F8B73;
+    --gold:#E8AC3E;
+    --paper:#FFFFFF;
+    --line:#D8CCAE;
+    --shadow: 4px 4px 0 rgba(43,69,112,0.12);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(circle at 8% 12%, rgba(232,99,74,0.07) 0, transparent 40%),
+      radial-gradient(circle at 92% 88%, rgba(111,174,150,0.10) 0, transparent 45%),
+      var(--cream);
+    font-family: "Noto Sans TC","PingFang TC","Microsoft JhengHei","Helvetica Neue",sans-serif;
+    color: var(--ink-deep);
+    min-height:100vh;
+  }
+  .grid-texture{
+    position:fixed; inset:0; pointer-events:none; z-index:0; opacity:0.5;
+    background-image:
+      linear-gradient(var(--line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size: 48px 48px;
+    mask-image: radial-gradient(circle at 50% 0%, rgba(0,0,0,0.5), transparent 70%);
+  }
+  .app{ position:relative; z-index:1; max-width:980px; margin:0 auto; padding: 28px 18px 60px; }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #2C3E50;
-            color: #333;
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
+  /* ---------- Header ---------- */
+  header.top{
+    text-align:center; margin-bottom: 22px;
+  }
+  .eyebrow{
+    display:inline-block; font-size:13px; letter-spacing:0.12em; font-weight:700;
+    color:var(--coral-deep); background:#FBE3DA; border:1.5px solid var(--coral);
+    padding:3px 12px; border-radius:999px; margin-bottom:10px;
+  }
+  h1.title{
+    font-size: clamp(26px, 5vw, 38px); margin:0; font-weight:900; color:var(--ink-deep);
+    letter-spacing: 0.02em;
+  }
+  h1.title .zh{ font-size:1em; }
+  .subtitle{
+    margin:8px 0 0; color:#5B6B85; font-size:14.5px;
+  }
+  .subtitle .en{ font-style:italic; }
 
-        .container {
-            background-color: var(--card-light);
-            padding: 35px;
-            border-radius: 24px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
-            width: 100%;
-            max-width: 550px;
-            text-align: center;
-            box-sizing: border-box;
-            position: relative;
-        }
+  /* ---------- Cast strip ---------- */
+  .cast-strip{
+    display:flex; justify-content:center; gap:10px; margin: 18px 0 26px; flex-wrap:wrap;
+  }
+  .cast-chip{
+    display:flex; align-items:center; gap:6px; background:var(--paper);
+    border:2px solid var(--ink); border-radius:999px; padding:5px 12px 5px 5px;
+    font-size:13px; font-weight:700; box-shadow:var(--shadow);
+  }
+  .cast-chip .avatar{
+    width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    font-size:14px; color:#fff; flex-shrink:0;
+  }
 
-        h1 {
-            font-size: 26px;
-            margin-bottom: 10px;
-            color: #2C3E50;
-        }
+  /* ---------- Progress map ---------- */
+  .progress-rail{
+    display:flex; align-items:center; justify-content:center; gap:6px; margin-bottom:28px;
+    flex-wrap:wrap;
+  }
+  .progress-rail .seg{
+    height:6px; width:60px; border-radius:6px; background:var(--line);
+  }
+  .progress-rail .seg.done{ background:var(--mint); }
+  .progress-dot{
+    width:34px;height:34px;border-radius:50%;background:var(--paper);border:2.5px solid var(--ink);
+    display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px;flex-shrink:0;
+  }
+  .progress-dot.done{ background:var(--mint); border-color:var(--mint-deep); color:#fff; }
 
-        p {
-            font-size: 15px;
-            color: #7F8C8D;
-            margin-bottom: 25px;
-        }
+  /* ---------- Game cards (home) ---------- */
+  .stage-grid{
+    display:grid; grid-template-columns: repeat(2, 1fr); gap:18px;
+  }
+  @media (max-width:680px){ .stage-grid{ grid-template-columns: 1fr; } }
 
-        textarea {
-            width: 100%;
-            height: 130px;
-            padding: 15px;
-            border: 2px solid #BDC3C7;
-            border-radius: 12px;
-            font-size: 16px;
-            resize: none;
-            box-sizing: border-box;
-            margin-bottom: 25px;
-        }
+  .stage-card{
+    position:relative; background:var(--paper); border:2.5px solid var(--ink-deep);
+    border-radius:18px; padding:20px 20px 18px; box-shadow: var(--shadow);
+    cursor:pointer; transition: transform .15s ease, box-shadow .15s ease;
+    display:flex; flex-direction:column; gap:8px; min-height:168px;
+  }
+  .stage-card:hover{ transform: translate(-2px,-2px); box-shadow: 7px 7px 0 rgba(43,69,112,0.16); }
+  .stage-card:active{ transform: translate(0,0); box-shadow:2px 2px 0 rgba(43,69,112,0.16); }
+  .stage-card .num-tag{
+    position:absolute; top:-14px; left:16px; background:var(--coral); color:#fff;
+    font-weight:900; font-size:13px; padding:4px 12px; border-radius:8px;
+    border:2px solid var(--ink-deep); box-shadow: 2px 2px 0 rgba(43,69,112,0.2);
+  }
+  .stage-card .icon-row{ font-size:30px; line-height:1; margin-top:8px;}
+  .stage-card h3{ margin:2px 0 0; font-size:18px; font-weight:900; color:var(--ink-deep); }
+  .stage-card .en-name{ font-size:12.5px; color:var(--coral-deep); font-style:italic; font-weight:700; margin:-2px 0 4px;}
+  .stage-card p.desc{ margin:0; font-size:13px; color:#5B6B85; flex-grow:1; line-height:1.5;}
+  .stage-card .footer-row{ display:flex; align-items:center; justify-content:space-between; margin-top:6px;}
+  .stage-card .lesson-pill{
+    font-size:11px; font-weight:700; background:var(--cream-deep); color:var(--ink);
+    padding:3px 9px; border-radius:999px; border:1.5px solid var(--line);
+  }
+  .stage-card .stars{ font-size:13px; color:var(--gold); letter-spacing:1px; }
+  .stage-card.locked{ filter:grayscale(0.5); opacity:0.6; cursor:not-allowed; }
+  .stage-card.locked:hover{ transform:none; box-shadow:var(--shadow); }
+  .stage-card .lock-badge{ position:absolute; top:14px; right:16px; font-size:18px; }
 
-        textarea:focus {
-            border-color: var(--roulette-red);
-            outline: none;
-        }
+  /* ---------- Generic game shell ---------- */
+  .hidden{ display:none !important; }
+  .game-shell{
+    background:var(--paper); border:2.5px solid var(--ink-deep); border-radius:20px;
+    padding: 20px 18px 24px; box-shadow: var(--shadow);
+  }
+  .game-shell .shell-top{
+    display:flex; align-items:flex-start; justify-content:space-between; gap:10px; margin-bottom:14px;
+    flex-wrap:wrap;
+  }
+  .back-btn{
+    background:var(--cream-deep); border:2px solid var(--ink); color:var(--ink-deep);
+    font-weight:800; font-size:13px; padding:7px 14px; border-radius:10px; cursor:pointer;
+    display:inline-flex; align-items:center; gap:5px;
+  }
+  .back-btn:hover{ background:var(--line); }
+  .shell-title{ text-align:center; flex-grow:1; }
+  .shell-title h2{ margin:0; font-size:20px; font-weight:900; color:var(--ink-deep); }
+  .shell-title .en{ font-size:12px; color:var(--coral-deep); font-weight:700; font-style:italic; }
+  .score-pill{
+    background:var(--ink-deep); color:#fff; font-weight:800; font-size:13px;
+    padding:7px 14px; border-radius:10px; white-space:nowrap;
+  }
 
-        /* --- ROULETTE WINDOW DESIGN --- */
-        .roulette-wrapper {
-            position: relative;
-            width: 100%;
-            max-width: 320px;
-            height: 140px;
-            margin: 30px auto;
-            background-color: var(--background-dark);
-            border: 8px solid var(--roulette-gold);
-            border-radius: 16px;
-            overflow: hidden; /* Sembunyikan kata di luar kotak jendela */
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.8), 0 8px 20px rgba(0,0,0,0.2);
-        }
+  .hint-bar{
+    background:#FFF6E8; border:1.5px dashed var(--gold); border-radius:12px;
+    padding:9px 14px; font-size:13px; color:#7A5A1C; margin-bottom:16px; line-height:1.5;
+  }
+  .hint-bar b{ color:var(--coral-deep); }
 
-        /* Garis Penunjuk Tengah (Target Pointer) */
-        .roulette-wrapper::before, .roulette-wrapper::after {
-            content: '';
-            position: absolute;
-            left: 0;
-            width: 100%;
-            height: 4px;
-            background: var(--roulette-gold);
-            z-index: 10;
-        }
-        .roulette-wrapper::before { top: 20px; }
-        .roulette-wrapper::after { bottom: 20px; }
+  button.primary-btn{
+    background:var(--coral); color:#fff; border:2px solid var(--ink-deep); font-weight:800;
+    font-size:14px; padding:10px 20px; border-radius:12px; cursor:pointer;
+    box-shadow: 3px 3px 0 rgba(43,69,112,0.2);
+  }
+  button.primary-btn:hover{ background:var(--coral-deep); }
+  button.primary-btn:disabled{ opacity:0.45; cursor:not-allowed; }
+  button.ghost-btn{
+    background:transparent; color:var(--ink-deep); border:2px solid var(--ink); font-weight:800;
+    font-size:13px; padding:8px 16px; border-radius:12px; cursor:pointer;
+  }
+  button.ghost-btn:hover{ background:var(--cream-deep); }
 
-        /* Segitiga Penunjuk Kiri-Kanan */
-        .pointer-left, .pointer-right {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 0;
-            height: 0;
-            border-top: 15px solid transparent;
-            border-bottom: 15px solid transparent;
-            z-index: 11;
-        }
-        .pointer-left {
-            left: 5px;
-            border-left: 20px solid var(--roulette-gold);
-        }
-        .pointer-right {
-            right: 5px;
-            border-right: 20px solid var(--roulette-gold);
-        }
+  /* ---------- Win overlay ---------- */
+  .win-overlay{
+    position:fixed; inset:0; background:rgba(27,46,74,0.55); z-index:50;
+    display:flex; align-items:center; justify-content:center; padding:20px;
+  }
+  .win-card{
+    background:var(--paper); border:3px solid var(--ink-deep); border-radius:22px;
+    padding:30px 26px; text-align:center; max-width:380px; box-shadow: 8px 8px 0 rgba(0,0,0,0.18);
+  }
+  .win-card .big-emoji{ font-size:54px; margin-bottom:6px; }
+  .win-card h3{ margin:0 0 6px; font-size:22px; font-weight:900; color:var(--ink-deep); }
+  .win-card p{ margin:0 0 18px; font-size:14px; color:#5B6B85; }
+  .win-card .stars-big{ font-size:30px; color:var(--gold); margin-bottom:14px; letter-spacing:4px;}
 
-        /* Kontainer Gulungan Kata */
-        .roulette-strip {
-            position: absolute;
-            width: 100%;
-            top: 0;
-            left: 0;
-            transition: transform 0s ease-out; /* Diatur dinamis via JS */
-            will-change: transform;
-        }
+  footer.app-footer{
+    text-align:center; margin-top:34px; font-size:12px; color:#94A0B5;
+  }
 
-        /* Desain Setiap Item Kata */
-        .roulette-item {
-            height: 140px;
-            line-height: 140px;
-            font-size: 65px;
-            font-weight: bold;
-            color: #FFFFFF;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-            box-sizing: border-box;
-            background: #2C3E50;
-            border-bottom: 1px solid #34495E;
-        }
+  @media (prefers-reduced-motion: reduce){
+    *{ transition:none !important; animation:none !important; }
+  }
 
-        /* --- CONTROL INTERFACE --- */
-        .lever-btn {
-            background: linear-gradient(135deg, #E74C3C, #C0392B);
-            color: white;
-            border: none;
-            padding: 16px 32px;
-            font-size: 18px;
-            font-weight: bold;
-            border-radius: 50px;
-            cursor: pointer;
-            box-shadow: 0 6px 15px rgba(192, 57, 43, 0.4);
-            transition: all 0.2s;
-            width: 100%;
-        }
+  /* ---------- Game 1: Memory Match ---------- */
+  .flip-card{
+    aspect-ratio: 1/1; position:relative; cursor:pointer; perspective:600px;
+  }
+  .flip-card .inner{
+    position:relative; width:100%; height:100%; transition: transform 0.45s;
+    transform-style: preserve-3d;
+  }
+  .flip-card.flipped .inner{ transform: rotateY(180deg); }
+  .flip-card .face{
+    position:absolute; inset:0; border-radius:12px; display:flex; align-items:center;
+    justify-content:center; backface-visibility:hidden; font-weight:800; text-align:center;
+    border:2.5px solid var(--ink-deep); padding:4px;
+  }
+  .flip-card .face-back{
+    background: linear-gradient(135deg, var(--ink), var(--ink-deep)); color:#fff; font-size:22px;
+  }
+  .flip-card .face-front{
+    background: var(--paper); color:var(--ink-deep); transform: rotateY(180deg);
+    font-size:15px; line-height:1.3; flex-direction:column; gap:2px;
+  }
+  .flip-card .face-front .zh{ font-size:20px; font-weight:900; }
+  .flip-card .face-front .py{ font-size:12px; color:var(--coral-deep); font-style:italic; }
+  .flip-card.matched .face-front{ background:#E7F4EE; border-color:var(--mint-deep); color:var(--mint-deep); }
+  .flip-card.shake .inner{ animation: shakeAnim 0.4s; }
+  @keyframes shakeAnim{
+    0%,100%{ transform: translateX(0); }
+    25%{ transform: translateX(-6px); }
+    75%{ transform: translateX(6px); }
+  }
+  @media (max-width:560px){
+    #g1-board{ grid-template-columns:repeat(3,1fr) !important; }
+  }
 
-        .lever-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(192, 57, 43, 0.6);
-        }
+  /* ---------- Game 2: Fill-in quiz ---------- */
+  .quiz-card{
+    background: var(--cream-deep); border:2px solid var(--line); border-radius:16px;
+    padding: 22px 20px; text-align:center;
+  }
+  .quiz-sentence{
+    font-size: clamp(19px, 4vw, 25px); font-weight:800; color:var(--ink-deep);
+    margin-bottom: 6px; line-height:1.7;
+  }
+  .quiz-sentence .blank{
+    display:inline-block; min-width:52px; border-bottom:3px solid var(--coral);
+    color:var(--coral-deep); font-weight:900;
+  }
+  .quiz-en-hint{ font-size:13px; color:#6B7690; font-style:italic; margin-bottom:18px; }
+  .quiz-options{
+    display:grid; grid-template-columns:repeat(2,1fr); gap:10px; max-width:420px; margin:0 auto;
+  }
+  @media (max-width:480px){ .quiz-options{ grid-template-columns:1fr; } }
+  .quiz-opt{
+    background:var(--paper); border:2px solid var(--ink); border-radius:12px;
+    padding:12px 10px; font-size:17px; font-weight:800; cursor:pointer; color:var(--ink-deep);
+  }
+  .quiz-opt:hover{ background:#EFF3FB; }
+  .quiz-opt.correct{ background:#DDF1E6; border-color:var(--mint-deep); color:var(--mint-deep); }
+  .quiz-opt.wrong{ background:#FBE0DC; border-color:var(--coral-deep); color:var(--coral-deep); }
+  .quiz-feedback{ min-height:24px; margin-top:14px; font-weight:800; font-size:14px; }
+  .quiz-feedback.ok{ color:var(--mint-deep); }
+  .quiz-feedback.no{ color:var(--coral-deep); }
+  .quiz-nextwrap{ margin-top:14px; }
+  .quiz-progress-dots{ display:flex; justify-content:center; gap:5px; margin-bottom:14px; }
+  .quiz-progress-dots span{ width:9px; height:9px; border-radius:50%; background:var(--line); display:inline-block; }
+  .quiz-progress-dots span.on{ background:var(--coral); }
+  .quiz-progress-dots span.right{ background:var(--mint); }
 
-        .lever-btn:disabled {
-            background: #95A5A6;
-            box-shadow: none;
-            cursor: not-allowed;
-            transform: none;
-        }
+  /* ---------- Game 3: Timed counting challenge ---------- */
+  .g3-figures{
+    display:flex; flex-wrap:wrap; justify-content:center; gap:6px; margin: 10px 0 16px;
+    font-size: 30px; min-height:40px;
+  }
+  .g3-figures .fig-boy{ color:var(--ink); }
+  .g3-figures .fig-girl{ color:var(--coral); }
+  .g3-running-score{
+    text-align:center; font-weight:800; font-size:14px; color:var(--ink-deep); margin-bottom:8px;
+  }
+  .g3-timer-bar-wrap{
+    height:10px; background:var(--cream-deep); border-radius:6px; overflow:hidden; margin-bottom:16px;
+    border:1.5px solid var(--line);
+  }
+  .g3-timer-bar{ height:100%; background:var(--mint); width:100%; transition: width 1s linear; }
+  .g3-timer-bar.warn{ background:var(--gold); }
+  .g3-timer-bar.danger{ background:var(--coral); }
 
-        .status-alert {
-            background-color: #EAEDED;
-            padding: 14px;
-            border-radius: 10px;
-            font-size: 15px;
-            font-weight: bold;
-            color: #566573;
-            margin: 25px 0;
-            transition: all 0.3s;
-        }
+  /* ============================================================
+     MOBILE TUNING — shrink the header chrome, grow the game text
+     ============================================================ */
+  @media (max-width:520px){
+    .app{ padding: 14px 12px 40px; }
 
-        .winner-flash {
-            animation: flashLight 0.4s infinite alternate;
-        }
+    /* Compact header so the game starts higher on screen */
+    .eyebrow{ font-size:11px; padding:2px 9px; margin-bottom:6px; }
+    h1.title{ font-size:22px; }
+    .subtitle{ font-size:12.5px; margin-top:5px; }
+    .subtitle .en{ display:block; margin-top:1px; }
 
-        @keyframes flashLight {
-            from { border-color: var(--roulette-gold); background-color: #FFF2CC; }
-            to { border-color: #E67E22; background-color: #D4EFDF; }
-        }
+    .cast-strip{ gap:6px; margin:12px 0 16px; }
+    .cast-chip{ font-size:11.5px; padding:4px 9px 4px 4px; }
+    .cast-chip .avatar{ width:21px; height:21px; font-size:11px; }
 
-        .hidden { display: none !important; }
+    .progress-rail{ gap:4px; margin-bottom:16px; flex-wrap:nowrap; }
+    .progress-rail .seg{ width:24px; flex-shrink:1; }
+    .progress-dot{ width:28px; height:28px; font-size:12px; flex-shrink:0; }
 
-        .btn-secondary {
-            background-color: #BDC3C7;
-            color: #2C3E50;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            width: 100%;
-            margin-top: 10px;
-        }
-    </style>
+    /* Stage cards: keep readable but tighter */
+    .stage-card{ padding:18px 16px 16px; min-height:auto; }
+    .stage-card h3{ font-size:17px; }
+    .stage-card p.desc{ font-size:13.5px; line-height:1.55; }
+
+    /* Game shell: bigger touch targets & bigger text where it matters */
+    .game-shell{ padding:16px 12px 20px; border-radius:16px; }
+    .shell-title h2{ font-size:18px; }
+    .back-btn{ font-size:12.5px; padding:6px 11px; }
+    .score-pill{ font-size:12.5px; padding:6px 11px; }
+    .hint-bar{ font-size:13px; padding:8px 12px; margin-bottom:14px; }
+
+    /* Quiz text: this is what students actually read during play — make it BIG */
+    .quiz-card{ padding:20px 14px; }
+    .quiz-sentence{ font-size: 23px; line-height:1.6; }
+    .quiz-sentence .blank{ min-width:42px; }
+    .quiz-en-hint{ font-size:14px; }
+    .quiz-opt{ font-size:19px; padding:14px 10px; }
+    .quiz-feedback{ font-size:15px; }
+
+    /* Game 1 memory cards: bigger glyphs */
+    .flip-card .face-back{ font-size:26px; }
+    .flip-card .face-front .zh{ font-size:22px; }
+    .flip-card .face-front .py{ font-size:13px; }
+
+    /* Game 3 figures + score */
+    .g3-figures{ font-size:34px; }
+    .g3-running-score{ font-size:15px; }
+
+    /* Win overlay */
+    .win-card{ padding:26px 20px; max-width:320px; }
+    .win-card h3{ font-size:19px; }
+    .win-card p{ font-size:14px; }
+    .win-card .stars-big{ font-size:26px; }
+
+    footer.app-footer{ font-size:11px; margin-top:24px; }
+  }
+
+  @media (max-width:360px){
+    .quiz-sentence{ font-size:21px; }
+    .quiz-opt{ font-size:17px; }
+  }
+</style>
 </head>
 <body>
+<div class="grid-texture"></div>
+<div class="app">
 
-    <!-- SETUP SCREEN -->
-    <div id="setup-screen" class="container">
-        <h1>🎰 Hanzi Roulette Setup</h1>
-        <p>Input your vocabulary below. Separate them using commas, spaces, or new lines.</p>
-        <textarea id="hanzi-input" placeholder="e.g., 老师, 学生, 学校, 谢谢, 你好, 苹果, 飞机, 咖啡"></textarea>
-        <button class="lever-btn" onclick="initRoulette()">Load into Roulette</button>
-    </div>
+  <header class="top">
+    <span class="eyebrow">學華語向前走 ・ 第一冊 A本</span>
+    <h1 class="title">第一課～第三課 闖關練習</h1>
+    <p class="subtitle">Lessons 1–3 Review Game ・ <span class="en">為期中考做準備 get ready for your midterm!</span></p>
+  </header>
 
-    <!-- GAMEPLAY SCREEN -->
-    <div id="game-screen" class="container hidden">
-        <h1>Hanzi Roulette Wheel</h1>
-        <p>Pull the lever to spin the wheel. Be the fastest to raise your hand!</p>
-        
-        <!-- Roulette Window -->
-        <div id="roulette-box" class="roulette-wrapper">
-            <div class="pointer-left"></div>
-            <div class="pointer-right"></div>
-            <div id="strip" class="roulette-strip">
-                <!-- Items will be generated dynamically by JavaScript -->
-            </div>
+  <div class="cast-strip">
+    <div class="cast-chip"><span class="avatar" style="background:#E8634A;">王</span>王老師 Ms. Wang</div>
+    <div class="cast-chip"><span class="avatar" style="background:#2B4570;">大</span>李大文 Devin</div>
+    <div class="cast-chip"><span class="avatar" style="background:#6FAE96;">心</span>陳心美 May</div>
+    <div class="cast-chip"><span class="avatar" style="background:#E8AC3E;">東</span>林東明 Tony</div>
+  </div>
+
+  <div class="progress-rail" id="progressRail"></div>
+
+  <!-- ============ HOME SCREEN ============ -->
+  <section id="screen-home">
+    <div class="stage-grid">
+
+      <div class="stage-card" data-game="1" onclick="goToGame(1)">
+        <span class="num-tag">第 1 關</span>
+        <div class="icon-row">👋🀄</div>
+        <h3>你好配對王</h3>
+        <div class="en-name">Hello! Memory Match</div>
+        <p class="desc">翻牌找出配對的生詞和拼音，認識大文、心美、東明！第一課生詞總複習。</p>
+        <div class="footer-row">
+          <span class="lesson-pill">第一課 你好</span>
+          <span class="stars" id="stars-1">☆☆☆</span>
         </div>
-        
-        <!-- Status Notification Box -->
-        <div id="game-status" class="status-alert">
-            Place your bets and pull the lever!
+      </div>
+
+      <div class="stage-card" data-game="2" onclick="goToGame(2)">
+        <span class="num-tag">第 2 關</span>
+        <div class="icon-row">👨‍👩‍👧‍👦🔢</div>
+        <h3>我家有幾個人</h3>
+        <div class="en-name">Family &amp; Numbers 1–5</div>
+        <p class="desc">幫忙完成句子，練習家庭成員生詞和數字一到五。聽聽看王老師怎麼說！</p>
+        <div class="footer-row">
+          <span class="lesson-pill">第二課 你家有幾個人</span>
+          <span class="stars" id="stars-2">☆☆☆</span>
         </div>
+      </div>
 
-        <button id="spin-button" class="lever-btn" onclick="spinRoulette()">🕹️ Pull Lever (Spin)</button>
-        <button class="btn-secondary" onclick="backToSetup()">⚙️ Edit Words</button>
+      <div class="stage-card" data-game="3" onclick="goToGame(3)">
+        <span class="num-tag">第 3 關</span>
+        <div class="icon-row">🏫🔟</div>
+        <h3>班級大調查</h3>
+        <div class="en-name">Classroom Count 6–10</div>
+        <p class="desc">限時挑戰！快速算出班上男生女生的數字，練習六到十的數字和「也」「兩」的用法。</p>
+        <div class="footer-row">
+          <span class="lesson-pill">第三課 你們班有幾個同學</span>
+          <span class="stars" id="stars-3">☆☆☆</span>
+        </div>
+      </div>
+
+      <div class="stage-card" data-game="4" onclick="goToGame(4)">
+        <span class="num-tag">第 4 關 ・ Boss</span>
+        <div class="icon-row">📝🏆</div>
+        <h3>期中考總複習</h3>
+        <div class="en-name">Midterm Boss Quiz</div>
+        <p class="desc">綜合第一～三課所有生詞、句型和數字，模擬期中考題型，挑戰满分！</p>
+        <div class="footer-row">
+          <span class="lesson-pill">第一～三課 總複習</span>
+          <span class="stars" id="stars-4">☆☆☆</span>
+        </div>
+      </div>
+
     </div>
+  </section>
 
-    <script>
-        let originalWords = [];
-        let itemHeight = 140; // Harus sama dengan height .roulette-item di CSS
-        let isSpinning = false;
+  <!-- ============ GAME 1 ============ -->
+  <section id="screen-game1" class="hidden">
+    <div class="game-shell">
+      <div class="shell-top">
+        <button class="back-btn" onclick="goHome()">⟵ 地圖</button>
+        <div class="shell-title">
+          <h2>你好配對王</h2>
+          <div class="en">Lesson 1 Memory Match</div>
+        </div>
+        <div class="score-pill" id="g1-moves">翻牌次數 0</div>
+      </div>
+      <div class="hint-bar">💡 <b>玩法 How to play：</b>翻開兩張卡片，找出「生詞」和「拼音」的配對。例如「你好」配「nǐ hǎo」。Match the Chinese word with its pinyin!</div>
+      <div id="g1-board" style="display:grid; grid-template-columns:repeat(4,1fr); gap:10px;"></div>
+    </div>
+  </section>
 
-        function initRoulette() {
-            const rawInput = document.getElementById('hanzi-input').value;
-            originalWords = rawInput.split(/[\s,，\n]+/).filter(word => word.trim() !== "");
+  <!-- ============ GAME 2 ============ -->
+  <section id="screen-game2" class="hidden">
+    <div class="game-shell">
+      <div class="shell-top">
+        <button class="back-btn" onclick="goHome()">⟵ 地圖</button>
+        <div class="shell-title">
+          <h2>我家有幾個人</h2>
+          <div class="en">Lesson 2 Family &amp; Numbers 1–5</div>
+        </div>
+        <div class="score-pill" id="g2-score">第 1 / 8 題</div>
+      </div>
+      <div class="hint-bar">💡 <b>玩法：</b>看圖把句子填完整，再選出正確答案。Fill in the blank to complete each sentence about family members and numbers 1–5!</div>
+      <div id="g2-quiz"></div>
+    </div>
+  </section>
 
-            if (originalWords.length === 0) {
-                alert("Please enter at least one Hanzi character or word first!");
-                return;
-            }
+  <!-- ============ GAME 3 ============ -->
+  <section id="screen-game3" class="hidden">
+    <div class="game-shell">
+      <div class="shell-top">
+        <button class="back-btn" onclick="goHome()">⟵ 地圖</button>
+        <div class="shell-title">
+          <h2>班級大調查</h2>
+          <div class="en">Lesson 3 Classroom Count 6–10</div>
+        </div>
+        <div class="score-pill" id="g3-timer">⏱ 60</div>
+      </div>
+      <div class="hint-bar">💡 <b>玩法：</b>限時60秒，看圖數一數男生女生人數，快速點出正確的數字生詞！答對越多分數越高。Count the boys/girls and tap the correct number word before time runs out!</div>
+      <div id="g3-quiz"></div>
+      <div id="g3-start-wrap" style="text-align:center; margin-top:6px;">
+        <button class="primary-btn" id="g3-startBtn" onclick="g3Start()">開始挑戰 Start! 🚀</button>
+      </div>
+    </div>
+  </section>
 
-            // Ganti layar ke gameplay
-            document.getElementById('setup-screen').classList.add('hidden');
-            document.getElementById('game-screen').classList.remove('hidden');
+  <!-- ============ GAME 4 ============ -->
+  <section id="screen-game4" class="hidden">
+    <div class="game-shell">
+      <div class="shell-top">
+        <button class="back-btn" onclick="goHome()">⟵ 地圖</button>
+        <div class="shell-title">
+          <h2>期中考總複習</h2>
+          <div class="en">Midterm Boss Quiz ・ Lessons 1–3</div>
+        </div>
+        <div class="score-pill" id="g4-score">第 1 / 12 題</div>
+      </div>
+      <div class="hint-bar">💡 <b>玩法：</b>綜合第一～三課所有內容，題型跟期中考一樣多元！加油，挑戰满分 12/12！Mixed review covering everything from Lessons 1–3, just like your midterm.</div>
+      <div id="g4-quiz"></div>
+    </div>
+  </section>
 
-            resetRouletteVisuals();
+  <footer class="app-footer">
+    教材來源：僑務委員會《學華語向前走》第一冊課本A ・ 製作給認真準備期中考的你 💪
+  </footer>
+</div>
+
+<div id="winOverlay" class="win-overlay hidden">
+  <div class="win-card">
+    <div class="big-emoji" id="winEmoji">🎉</div>
+    <h3 id="winTitle">過關了！</h3>
+    <p id="winSubtitle">Great job!</p>
+    <div class="stars-big" id="winStars">★★★</div>
+    <button class="primary-btn" onclick="closeWin()">回到地圖 Back to Map</button>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   SHARED STATE & NAVIGATION
+   ============================================================ */
+const STORAGE_KEY = "hello_mandarin_l1to3_progress";
+let progress = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{"1":0,"2":0,"3":0,"4":0}');
+
+function saveProgress(gameNum, stars){
+  if(stars > (progress[gameNum]||0)){
+    progress[gameNum] = stars;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+  }
+  renderHome();
+}
+
+function renderHome(){
+  for(let i=1;i<=4;i++){
+    const s = progress[i]||0;
+    const el = document.getElementById('stars-'+i);
+    if(el) el.textContent = "★".repeat(s) + "☆".repeat(3-s);
+  }
+  const rail = document.getElementById('progressRail');
+  rail.innerHTML = "";
+  for(let i=1;i<=4;i++){
+    const dot = document.createElement('div');
+    dot.className = 'progress-dot' + (progress[i]>0 ? ' done' : '');
+    dot.textContent = progress[i]>0 ? '✓' : i;
+    rail.appendChild(dot);
+    if(i<4){
+      const seg = document.createElement('div');
+      seg.className = 'seg' + (progress[i]>0 ? ' done' : '');
+      rail.appendChild(seg);
+    }
+  }
+}
+
+function showScreen(id){
+  document.querySelectorAll('section[id^="screen-"]').forEach(s=>s.classList.add('hidden'));
+  document.getElementById(id).classList.remove('hidden');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function goHome(){
+  if(typeof g3State !== 'undefined' && g3State && g3State.timerId){ clearInterval(g3State.timerId); g3State.running = false; }
+  showScreen('screen-home');
+}
+
+function goToGame(n){
+  showScreen('screen-game'+n);
+  if(n===1) initGame1();
+  if(n===2) initGame2();
+  if(n===3) initGame3();
+  if(n===4) initGame4();
+}
+
+function showWin(gameNum, starsEarned, title, subtitle, emoji){
+  document.getElementById('winEmoji').textContent = emoji || '🎉';
+  document.getElementById('winTitle').textContent = title || '過關了！Great Job!';
+  document.getElementById('winSubtitle').textContent = subtitle || '';
+  document.getElementById('winStars').textContent = "★".repeat(starsEarned) + "☆".repeat(3-starsEarned);
+  document.getElementById('winOverlay').classList.remove('hidden');
+  saveProgress(gameNum, starsEarned);
+  window._lastWinGame = gameNum;
+}
+function closeWin(){
+  document.getElementById('winOverlay').classList.add('hidden');
+  goHome();
+}
+
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+
+renderHome();
+
+/* ============================================================
+   GAME 1 — 你好配對王 Memory Match (Lesson 1 vocab)
+   ============================================================ */
+const G1_VOCAB = [
+  {zh:"你好", py:"nǐ hǎo", en:"hello"},
+  {zh:"我", py:"wǒ", en:"I, me"},
+  {zh:"你", py:"nǐ", en:"you"},
+  {zh:"他", py:"tā", en:"he"},
+  {zh:"是", py:"shì", en:"to be"},
+  {zh:"叫", py:"jiào", en:"to be called"},
+  {zh:"什麼", py:"shén me", en:"what"},
+  {zh:"名字", py:"míng zi", en:"name"},
+];
+
+let g1State = { cards:[], flipped:[], matchedCount:0, moves:0, lock:false };
+
+function initGame1(){
+  g1State = { cards:[], flipped:[], matchedCount:0, moves:0, lock:false };
+  document.getElementById('g1-moves').textContent = "翻牌次數 0";
+
+  let deck = [];
+  G1_VOCAB.forEach((v, idx) => {
+    deck.push({ pairId: idx, type:'zh', zh:v.zh, py:v.py });
+    deck.push({ pairId: idx, type:'py', zh:v.zh, py:v.py });
+  });
+  deck = shuffle(deck);
+  g1State.cards = deck;
+
+  const board = document.getElementById('g1-board');
+  board.innerHTML = "";
+  deck.forEach((card, i) => {
+    const el = document.createElement('div');
+    el.className = 'flip-card';
+    el.dataset.index = i;
+    el.innerHTML = `
+      <div class="inner">
+        <div class="face face-back">？</div>
+        <div class="face face-front">
+          ${card.type==='zh'
+            ? `<div class="zh">${card.zh}</div>`
+            : `<div class="py">${card.py}</div>`}
+        </div>
+      </div>`;
+    el.addEventListener('click', () => g1FlipCard(i));
+    board.appendChild(el);
+  });
+}
+
+function g1FlipCard(i){
+  if(g1State.lock) return;
+  const el = document.querySelector(`#g1-board .flip-card[data-index="${i}"]`);
+  if(el.classList.contains('flipped') || el.classList.contains('matched')) return;
+  if(g1State.flipped.length >= 2) return;
+
+  el.classList.add('flipped');
+  g1State.flipped.push(i);
+
+  if(g1State.flipped.length === 2){
+    g1State.moves++;
+    document.getElementById('g1-moves').textContent = "翻牌次數 " + g1State.moves;
+    const [a,b] = g1State.flipped;
+    const cardA = g1State.cards[a], cardB = g1State.cards[b];
+    g1State.lock = true;
+
+    if(cardA.pairId === cardB.pairId && cardA.type !== cardB.type){
+      setTimeout(() => {
+        document.querySelector(`#g1-board .flip-card[data-index="${a}"]`).classList.add('matched');
+        document.querySelector(`#g1-board .flip-card[data-index="${b}"]`).classList.add('matched');
+        g1State.matchedCount++;
+        g1State.flipped = [];
+        g1State.lock = false;
+        if(g1State.matchedCount === G1_VOCAB.length){
+          setTimeout(() => g1Finish(), 500);
         }
+      }, 420);
+    } else {
+      const elA = document.querySelector(`#g1-board .flip-card[data-index="${a}"]`);
+      const elB = document.querySelector(`#g1-board .flip-card[data-index="${b}"]`);
+      elA.classList.add('shake'); elB.classList.add('shake');
+      setTimeout(() => {
+        elA.classList.remove('flipped','shake');
+        elB.classList.remove('flipped','shake');
+        g1State.flipped = [];
+        g1State.lock = false;
+      }, 750);
+    }
+  }
+}
 
-        function resetRouletteVisuals() {
-            const strip = document.getElementById('strip');
-            strip.style.transition = 'none';
-            strip.style.transform = 'translateY(0px)';
-            
-            // Isi strip dengan kata pertama saja sebagai default awal
-            strip.innerHTML = `<div class="roulette-item">${originalWords[0]}</div>`;
-            
-            const status = document.getElementById('game-status');
-            status.innerText = "Ready to Spin!";
-            status.className = "status-alert";
-            document.getElementById('roulette-box').classList.remove('winner-flash');
-        }
+function g1Finish(){
+  const moves = g1State.moves;
+  const perfect = G1_VOCAB.length;
+  let stars = 3;
+  if(moves > perfect * 1.4) stars = 2;
+  if(moves > perfect * 2.0) stars = 1;
+  showWin(1, stars,
+    "你好配對成功！You did it!",
+    `你翻了 ${moves} 次牌就找到所有配對。`,
+    "👋");
+}
 
-        function spinRoulette() {
-            if (isSpinning) return;
-            isSpinning = true;
+/* ============================================================
+   GAME 2 — 我家有幾個人 Fill-in Quiz (Lesson 2: family + 1-5)
+   ============================================================ */
+const G2_QUESTIONS = [
+  { sentence:"心美：我___有五個人。", en:"May: There are five people in my ___.", options:["家","班","人","名字"], answer:"家" },
+  { sentence:"我家有五個___，爸爸、媽媽、哥哥、弟弟和我。", en:"There are five ___ in my family.", options:["個人","人","老師","同學"], answer:"人" },
+  { sentence:"大文：我家有___個人。爸爸、媽媽、妹妹和我。", en:"Devin: There are ___ (4) people in my family.", options:["三","四","五","二"], answer:"四" },
+  { sentence:"王老師：我家有___個人。", en:"Ms.Wang: There are ___ (3) people in my family.", options:["二","三","四","一"], answer:"三" },
+  { sentence:"心美：我家有五個人，爸爸、媽媽、___、弟弟和我。", en:"...dad, mom, ___ (older brother), younger brother, and me.", options:["哥哥","妹妹","姐姐","老師"], answer:"哥哥" },
+  { sentence:"大文：我家有四個人，爸爸、媽媽、___和我。", en:"...dad, mom, ___ (younger sister), and me.", options:["妹妹","弟弟","哥哥","姐姐"], answer:"妹妹" },
+  { sentence:"王老師：心美，你___有幾個人？", en:"Ms.Wang: May, how many people are there in your ___?", options:["家","班","名字","同學"], answer:"家" },
+  { sentence:"大文：……老師___？", en:"Devin: ...what about you, teacher? (question particle)", options:["呢","也","和","是"], answer:"呢" },
+];
 
-            const strip = document.getElementById('strip');
-            const spinBtn = document.getElementById('spin-button');
-            const status = document.getElementById('game-status');
-            const rouletteBox = document.getElementById('roulette-box');
+let g2State = { idx:0, correctCount:0, order:[] };
 
-            spinBtn.disabled = true;
-            rouletteBox.classList.remove('winner-flash');
-            status.innerText = "🎰 Spinning... Watch closely!";
-            status.style.backgroundColor = "#FCF3CF";
-            status.style.color = "#B7950B";
+function initGame2(){
+  g2State = { idx:0, correctCount:0, order: shuffle([...Array(G2_QUESTIONS.length).keys()]) };
+  g2Render();
+}
 
-            // 1. Buat urutan barisan acak yang panjaaaang untuk efek gulungan roulette
-            let spinList = [];
-            const targetedSpins = 40; // Jumlah lompatan kata sebelum berhenti (bisa ditambah agar makin lama)
-            
-            for (let i = 0; i < targetedSpins; i++) {
-                const randomWord = originalWords[Math.floor(Math.random() * originalWords.length)];
-                spinList.push(randomWord);
-            }
-            
-            // Kata terakhir di dalam array adalah kata pemenang target utama kita
-            const winningWord = spinList[spinList.length - 1];
+function g2Render(){
+  const total = G2_QUESTIONS.length;
+  document.getElementById('g2-score').textContent = `第 ${g2State.idx+1} / ${total} 題`;
+  const q = G2_QUESTIONS[g2State.order[g2State.idx]];
+  const container = document.getElementById('g2-quiz');
 
-            // 2. Render seluruh list ke dalam DOM secara vertikal
-            strip.innerHTML = spinList.map(word => `<div class="roulette-item">${word}</div>`).join('');
+  let dots = "";
+  for(let i=0;i<total;i++){
+    let cls = i===g2State.idx ? 'on' : (i < g2State.idx ? 'right' : '');
+    dots += `<span class="${cls}"></span>`;
+  }
 
-            // 3. Reset posisi strip ke paling atas secara instan
-            strip.style.transition = 'none';
-            strip.style.transform = 'translateY(0px)';
+  const sentenceHtml = q.sentence.replace("___", `<span class="blank">？</span>`);
+  const opts = shuffle(q.options);
 
-            // 4. Jalankan animasi gulungan ke bawah (menggunakan setTimeout agar transisi CSS terbaca browser)
-            setTimeout(() => {
-                // Jarak geser ke bawah: (total item - 1) dikali tinggi satu kotak kata
-                const travelDistance = (targetedSpins - 1) * itemHeight;
-                
-                // Gunakan cubic-bezier agar gerakan melesat cepat di awal lalu melambat halus di akhir (efek gesekan)
-                strip.style.transition = 'transform 3.5s cubic-bezier(0.15, 0.85, 0.35, 1)';
-                strip.style.transform = `translateY(-${travelDistance}px)`;
-            }, 50);
+  container.innerHTML = `
+    <div class="quiz-progress-dots">${dots}</div>
+    <div class="quiz-card">
+      <div class="quiz-sentence">${sentenceHtml}</div>
+      <div class="quiz-en-hint">${q.en}</div>
+      <div class="quiz-options" id="g2-options">
+        ${opts.map(o => `<div class="quiz-opt" data-val="${o}">${o}</div>`).join('')}
+      </div>
+      <div class="quiz-feedback" id="g2-feedback"></div>
+      <div class="quiz-nextwrap" id="g2-nextwrap"></div>
+    </div>
+  `;
 
-            // 5. Ketika roda roulette berhenti berputar (setelah 3.5 detik)
-            setTimeout(() => {
-                isSpinning = false;
-                spinBtn.disabled = false;
+  document.querySelectorAll('#g2-options .quiz-opt').forEach(el => {
+    el.addEventListener('click', () => g2Answer(el, q.answer));
+  });
+}
 
-                // Berikan efek visual kemenangan (lampu kilat berkedip)
-                rouletteBox.classList.add('winner-flash');
-                status.innerText = "✋ STOP! RAISE YOUR HAND NOW!";
-                status.style.backgroundColor = "#D4EFDF";
-                status.style.color = "#196F3D";
-            }, 3550); 
-        }
+function g2Answer(el, answer){
+  if(el.parentElement.dataset.answered) return;
+  el.parentElement.dataset.answered = "1";
+  const chosen = el.dataset.val;
+  const fb = document.getElementById('g2-feedback');
 
-        function backToSetup() {
-            document.getElementById('setup-screen').classList.remove('hidden');
-            document.getElementById('game-screen').classList.add('hidden');
-        }
-    </script>
+  document.querySelectorAll('#g2-options .quiz-opt').forEach(o => {
+    if(o.dataset.val === answer) o.classList.add('correct');
+    else if(o === el) o.classList.add('wrong');
+  });
+
+  if(chosen === answer){
+    fb.textContent = "✅ 答對了！Correct!";
+    fb.className = "quiz-feedback ok";
+    g2State.correctCount++;
+  } else {
+    fb.textContent = `❌ 再試試！正確答案是「${answer}」`;
+    fb.className = "quiz-feedback no";
+  }
+
+  const nextLabel = (g2State.idx < G2_QUESTIONS.length-1) ? "下一題 Next ⟶" : "完成 Finish 🎉";
+  document.getElementById('g2-nextwrap').innerHTML =
+    `<button class="primary-btn" onclick="g2Next()">${nextLabel}</button>`;
+}
+
+function g2Next(){
+  if(g2State.idx < G2_QUESTIONS.length-1){
+    g2State.idx++;
+    g2Render();
+  } else {
+    g2Finish();
+  }
+}
+
+function g2Finish(){
+  const total = G2_QUESTIONS.length;
+  const correct = g2State.correctCount;
+  let stars = 1;
+  if(correct === total) stars = 3;
+  else if(correct >= Math.ceil(total*0.7)) stars = 2;
+  showWin(2, stars,
+    "家庭成員都學會了！Nice work!",
+    `你答對了 ${correct} / ${total} 題。`,
+    "👨‍👩‍👧‍👦");
+}
+
+/* ============================================================
+   GAME 3 — 班級大調查 Timed Counting Challenge (Lesson 3: 6-10)
+   ============================================================ */
+const G3_NUM_WORDS = {6:"六", 7:"七", 8:"八", 9:"九", 10:"十", 2:"兩"};
+let g3State = { score:0, timeLeft:60, timerId:null, running:false, currentAnswer:null };
+
+function initGame3(){
+  if(g3State.timerId) clearInterval(g3State.timerId);
+  g3State = { score:0, timeLeft:60, timerId:null, running:false, currentAnswer:null };
+  document.getElementById('g3-timer').textContent = "⏱ 60";
+  document.getElementById('g3-quiz').innerHTML = "";
+  document.getElementById('g3-start-wrap').classList.remove('hidden');
+  document.getElementById('g3-startBtn').textContent = "開始挑戰 Start! 🚀";
+}
+
+
+function g3RandomQuestion(){
+  // Build boys/girls counts so the ASKED value is always a taught number word:
+  // 6,7,8,9,10 (lesson 3 totals) or 2 ("兩" for small quantities).
+  const askGirls = Math.random() < 0.5;
+  const askPool = [2,6,7,8,9,10];
+  const askValue = askPool[Math.floor(Math.random()*askPool.length)];
+
+  // The "other" group just needs at least 1 person; it doesn't need to be a
+  // taught word since the question never asks about it directly.
+  const otherValue = Math.floor(Math.random()*9) + 1; // 1..9
+
+  const boys = askGirls ? otherValue : askValue;
+  const girls = askGirls ? askValue : otherValue;
+  const label = askGirls ? "女生 girls" : "男生 boys";
+
+  let figs = "";
+  for(let i=0;i<boys;i++) figs += `<span class="fig-boy">👦</span>`;
+  for(let i=0;i<girls;i++) figs += `<span class="fig-girl">👧</span>`;
+
+  // build option set: correct + 3 distractors from the taught number-word pool
+  const pool = askPool.filter(n => n !== askValue);
+  const distractors = shuffle(pool).slice(0,3);
+  const allNums = shuffle([askValue, ...distractors]);
+
+  return {
+    figsHtml: figs,
+    questionZh: `這個班有幾個${askGirls?"女生":"男生"}？`,
+    questionEn: `How many ${label} are there?`,
+    answerNum: askValue,
+    options: allNums,
+  };
+}
+
+function g3Start(){
+  g3State = { score:0, timeLeft:60, timerId:null, running:true, currentAnswer:null };
+  document.getElementById('g3-start-wrap').classList.add('hidden');
+  document.getElementById('g3-timer').textContent = "⏱ 60";
+  g3NextQuestion();
+  g3State.timerId = setInterval(g3Tick, 1000);
+}
+
+function g3Tick(){
+  g3State.timeLeft--;
+  document.getElementById('g3-timer').textContent = "⏱ " + g3State.timeLeft;
+  if(g3State.timeLeft <= 0){
+    clearInterval(g3State.timerId);
+    g3State.running = false;
+    g3Finish();
+  }
+}
+
+function g3NextQuestion(){
+  const q = g3RandomQuestion();
+  g3State.currentAnswer = q.answerNum;
+  const container = document.getElementById('g3-quiz');
+  container.innerHTML = `
+    <div class="g3-running-score">目前得分 Score: ${g3State.score}</div>
+    <div class="quiz-card">
+      <div class="g3-figures">${q.figsHtml}</div>
+      <div class="quiz-sentence" style="font-size:19px;">${q.questionZh}</div>
+      <div class="quiz-en-hint">${q.questionEn}</div>
+      <div class="quiz-options" id="g3-options">
+        ${q.options.map(n => `<div class="quiz-opt" data-val="${n}">${G3_NUM_WORDS[n]} (${n})</div>`).join('')}
+      </div>
+      <div class="quiz-feedback" id="g3-feedback"></div>
+    </div>
+  `;
+  document.querySelectorAll('#g3-options .quiz-opt').forEach(el => {
+    el.addEventListener('click', () => g3Answer(el));
+  });
+}
+
+function g3Answer(el){
+  if(!g3State.running) return;
+  if(el.parentElement.dataset.answered) return;
+  el.parentElement.dataset.answered = "1";
+  const chosen = parseInt(el.dataset.val, 10);
+  const fb = document.getElementById('g3-feedback');
+
+  if(chosen === g3State.currentAnswer){
+    el.classList.add('correct');
+    fb.textContent = "✅ 答對了！+10";
+    fb.className = "quiz-feedback ok";
+    g3State.score += 10;
+  } else {
+    el.classList.add('wrong');
+    document.querySelectorAll('#g3-options .quiz-opt').forEach(o=>{
+      if(parseInt(o.dataset.val,10) === g3State.currentAnswer) o.classList.add('correct');
+    });
+    fb.textContent = "❌ 正確答案是 " + G3_NUM_WORDS[g3State.currentAnswer];
+    fb.className = "quiz-feedback no";
+  }
+
+  setTimeout(() => { if(g3State.running) g3NextQuestion(); }, 650);
+}
+
+function g3Finish(){
+  const score = g3State.score;
+  let stars = 1;
+  if(score >= 80) stars = 3;
+  else if(score >= 40) stars = 2;
+  document.getElementById('g3-start-wrap').classList.remove('hidden');
+  document.getElementById('g3-startBtn').textContent = "再玩一次 Play Again 🔁";
+  showWin(3, stars,
+    "時間到！Time's up!",
+    `你的得分是 ${score} 分。`,
+    "🏫");
+}
+
+/* ============================================================
+   GAME 4 — 期中考總複習 Midterm Boss Quiz (Lessons 1-3 mixed)
+   ============================================================ */
+const G4_QUESTIONS = [
+  { sentence:"大文：你好，我___李大文。", en:"Hello, I ___ Devin Li. (to be)", options:["是","叫","有","在"], answer:"是" },
+  { sentence:"心美：你好，我___陳心美。", en:"Hello, my name ___ May Chen. (to be called)", options:["叫","是","有","你"], answer:"叫" },
+  { sentence:"大文：他___什麼名字？", en:"What is his name?", options:["叫","是","有","也"], answer:"叫" },
+  { sentence:"心美：他叫___東明。", en:"His name is ___ Dong-ming. (surname Lin)", options:["林","李","陳","王"], answer:"林" },
+  { sentence:"王老師：心美，你家有___個人？", en:"May, how many people are in your family?", options:["幾","什麼","誰","哪"], answer:"幾" },
+  { sentence:"心美：我家有五個人，爸爸、媽媽、哥哥、弟弟___我。", en:"...older brother, younger brother, ___ me.", options:["和","也","是","叫"], answer:"和" },
+  { sentence:"大文：……老師___？", en:"...what about you, teacher?", options:["呢","也","和","有"], answer:"呢" },
+  { sentence:"心美：我們班有九個同學，___個男生，七個女生。", en:"...___ (2) boys, seven girls.", options:["兩","二","三","八"], answer:"兩" },
+  { sentence:"東明：我們班有十個同學，八個男生，___個女生。", en:"...eight boys, ___ (2) girls.", options:["兩","二","十","九"], answer:"兩" },
+  { sentence:"大文：我們班___有十個同學。", en:"Our class ___ has ten classmates. (also)", options:["也","和","呢","是"], answer:"也" },
+  { sentence:"心美：我___有一個哥哥。", en:"I ___ have one older brother. (also)", options:["也","和","呢","有"], answer:"也" },
+  { sentence:"心美班有八個同學，五個女生，___個男生。", en:"...five girls, ___ (3) boys.", options:["三","四","五","六"], answer:"三" },
+];
+
+let g4State = { idx:0, correctCount:0, order:[] };
+
+function initGame4(){
+  g4State = { idx:0, correctCount:0, order: shuffle([...Array(G4_QUESTIONS.length).keys()]) };
+  g4Render();
+}
+
+function g4Render(){
+  const total = G4_QUESTIONS.length;
+  document.getElementById('g4-score').textContent = `第 ${g4State.idx+1} / ${total} 題`;
+  const q = G4_QUESTIONS[g4State.order[g4State.idx]];
+  const container = document.getElementById('g4-quiz');
+
+  let dots = "";
+  for(let i=0;i<total;i++){
+    let cls = i===g4State.idx ? 'on' : (i < g4State.idx ? 'right' : '');
+    dots += `<span class="${cls}"></span>`;
+  }
+
+  const sentenceHtml = q.sentence.replace("___", `<span class="blank">？</span>`);
+  const opts = shuffle(q.options);
+
+  container.innerHTML = `
+    <div class="quiz-progress-dots">${dots}</div>
+    <div class="quiz-card">
+      <div class="quiz-sentence">${sentenceHtml}</div>
+      <div class="quiz-en-hint">${q.en}</div>
+      <div class="quiz-options" id="g4-options">
+        ${opts.map(o => `<div class="quiz-opt" data-val="${o}">${o}</div>`).join('')}
+      </div>
+      <div class="quiz-feedback" id="g4-feedback"></div>
+      <div class="quiz-nextwrap" id="g4-nextwrap"></div>
+    </div>
+  `;
+
+  document.querySelectorAll('#g4-options .quiz-opt').forEach(el => {
+    el.addEventListener('click', () => g4Answer(el, q.answer));
+  });
+}
+
+function g4Answer(el, answer){
+  if(el.parentElement.dataset.answered) return;
+  el.parentElement.dataset.answered = "1";
+  const chosen = el.dataset.val;
+  const fb = document.getElementById('g4-feedback');
+
+  document.querySelectorAll('#g4-options .quiz-opt').forEach(o => {
+    if(o.dataset.val === answer) o.classList.add('correct');
+    else if(o === el) o.classList.add('wrong');
+  });
+
+  if(chosen === answer){
+    fb.textContent = "✅ 答對了！Correct!";
+    fb.className = "quiz-feedback ok";
+    g4State.correctCount++;
+  } else {
+    fb.textContent = `❌ 再試試！正確答案是「${answer}」`;
+    fb.className = "quiz-feedback no";
+  }
+
+  const nextLabel = (g4State.idx < G4_QUESTIONS.length-1) ? "下一題 Next ⟶" : "完成 Finish 🏆";
+  document.getElementById('g4-nextwrap').innerHTML =
+    `<button class="primary-btn" onclick="g4Next()">${nextLabel}</button>`;
+}
+
+function g4Next(){
+  if(g4State.idx < G4_QUESTIONS.length-1){
+    g4State.idx++;
+    g4Render();
+  } else {
+    g4Finish();
+  }
+}
+
+function g4Finish(){
+  const total = G4_QUESTIONS.length;
+  const correct = g4State.correctCount;
+  let stars = 1;
+  if(correct === total) stars = 3;
+  else if(correct >= Math.ceil(total*0.7)) stars = 2;
+  showWin(4, stars,
+    correct === total ? "满分！期中考準備好了！Perfect score!" : "總複習完成！Great review!",
+    `你答對了 ${correct} / ${total} 題。`,
+    correct === total ? "🏆" : "📝");
+}
+
+
+
+</script>
+
 </body>
 </html>
